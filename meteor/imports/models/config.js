@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 
 export const Config = new Mongo.Collection('config');
 
-export const Phases = ["Start", "One", "Two", "Done"];
+export const Phases = ["Start", "ObtainGCSServiceAccountKeyInJson", "IdentifyGCSBucket", "Complete"];
 
 export const ConfigSchema = new SimpleSchema({
 	phase: {type: String, allowedValues: Phases}

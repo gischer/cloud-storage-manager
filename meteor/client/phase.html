@@ -1,6 +1,18 @@
 <template name="Phase">
 	{{#if dataReady}}
 	The phase is <b>{{phase}}</b>
+		{{#if starting}}
+			{{>Starting}}
+		{{/if}}
+		{{#if obtainGCSKey}}
+		  	{{>ObtainGCSKey}}
+		{{/if}}
+		{{#if identifyGCSBucket}}
+			{{>IdentifyGCSBucket}}
+		{{/if}}
+		{{#if complete}}
+			{{>CloudStorageManager}}
+		{{/if}}
 	{{else}}
 	Data is not ready.
 	{{/if}}
