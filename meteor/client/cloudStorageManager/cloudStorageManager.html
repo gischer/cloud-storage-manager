@@ -1,3 +1,8 @@
 <template name='CloudStorageManager'>
-	<p>Here are the contents of your bucket:</p>
+	<div class='row'><h2>{{bucketName}}</h2></div>
+	<ul class='list-group'>
+	{{#each file in files}}
+		{{> FileItem file=file }}
+	{{/each}}
+	</ul>
 </template>

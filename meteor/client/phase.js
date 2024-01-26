@@ -15,6 +15,13 @@ Template.Phase.onCreated(function() {
 	})
 });
 
+const PhaseTitleMap = {
+	Start: "Starting",
+	ObtainGCSServiceAccountKeyInJson: "Obtain GCS Service Account Key",
+	IdentifyGCSBucket: "Specify a GCS Bucket Name",
+	Complete: "View and Manage Your Files",
+}
+
 Template.Phase.helpers({
 	dataReady() {
 		return Template.instance().subscriptionsReady();
@@ -38,6 +45,10 @@ Template.Phase.helpers({
 
 	complete() {
 		return getPhase() === "Complete";
+	},
+
+	phaseTitle() {
+		return PhaseTitleMap[getPhase()] || "Something Went Wrong";
 	}
 });
 

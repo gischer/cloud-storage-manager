@@ -16,7 +16,7 @@ Template.IdentifyGCSBucket.helpers({
 Template.IdentifyGCSBucket.events({
 	"click button#submit-bucket-name"(event) {
 		const bucketName = document.getElementById('gcs-bucket-name').value;
-		Meteor.call('config.update', {$set: {bucketName: bucketName, phase: "Complete"}})
+		Meteor.call('GCS.submitBucketName', bucketName)
 	},
 
 	"click button#reset-phase"(event) {

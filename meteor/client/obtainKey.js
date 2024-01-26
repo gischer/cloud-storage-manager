@@ -15,8 +15,12 @@ Template.ObtainGCSKey.helpers({
 
 Template.ObtainGCSKey.events({
 	"click #submitKey"(event) {
-		const keyJson = document.getElementById("GCSKey").value;
-		Meteor.call('config.update', {$set: {GCSKey: keyJson, phase: "IdentifyGCSBucket"}});
+		const fReader = new FileReader();
+		fReader.onload = function() {
+			Meteor.call('GCS.submitPem', fReader.result);
+		}
+		const fileElement = document.getElementById("pemFile");
+		fReader.readAsText(fileElement.files[0]);
 	},
 
 	"click #resetPhase"(event) {
