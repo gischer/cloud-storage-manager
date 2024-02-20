@@ -1,8 +1,17 @@
 <template name='CloudStorageManager'>
-	<div class='row'><h2>{{bucketName}}</h2></div>
-	<ul class='list-group'>
+	<h2 class='mt-2'>Files in <i>{{bucketName}}</i></h2>
+	<div class='row mt-4'>
+      <div class='input-group col-sm-6'>
+			<input class='form-control' type='file' id='upload-file'> 
+	  </div>
+	  <div class='col-sm-6'>
+		<button class='btn btn-success' id='start-upload-file'>Upload File</button>
+	  </div>
+	</div>
+	<table class='table mt-4'>
+		<tr><th>Name</th><th>Tags</th><th></th></tr>
 	{{#each file in files}}
 		{{> FileItem file=file }}
 	{{/each}}
-	</ul>
+	</table>
 </template>

@@ -1,3 +1,7 @@
 <template name="FileItem">
-	<li class="list-group-item">{{file.Key}}</li>
+	<tr>
+		<td>{{file.Key}}</td>
+		<td>{{file.metadata.tags}}</td>
+		<td><button class='btn btn-danger btn-delete-file'>Delete</button></td>
+	</tr>
 </template>

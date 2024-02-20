@@ -19,7 +19,8 @@ const PhaseTitleMap = {
 	Start: "Starting",
 	ObtainGCSServiceAccountKeyInJson: "Obtain GCS Service Account Key",
 	IdentifyGCSBucket: "Specify a GCS Bucket Name",
-	Complete: "View and Manage Your Files",
+	Complete: "",
+	//Complete: "View and Manage Your Files",
 }
 
 Template.Phase.helpers({
@@ -48,7 +49,7 @@ Template.Phase.helpers({
 	},
 
 	phaseTitle() {
-		return PhaseTitleMap[getPhase()] || "Something Went Wrong";
+		return PhaseTitleMap[getPhase()];
 	}
 });
 

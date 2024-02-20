@@ -13,14 +13,10 @@ const ListOfFiles = ReactiveVar(false);
 const x2js = new X2JS();
 
 Template.CloudStorageManager.onCreated(function() {
-	const result = Meteor.call('GCS.requestListURL', (error, result) => {
-		if (error) {
-			console.log(error);
-		}
-		SignedListUrl.set(result[0]);
-		console.log(result);
-	});
+	// Fire off the request for a signed URL that will list the bucket
+	updateFileList();
 
+	// Watch for the production of a signed URL that will list the bucket, and fetch it once it shows up.
 	this.autorun(function() {
 		const signedListUrl = SignedListUrl.get();
 		if (signedListUrl) {
@@ -29,7 +25,6 @@ Template.CloudStorageManager.onCreated(function() {
 				response.text()
 				.then((xmlText) => {
 					const responseObj = x2js.xml2js(xmlText);
-					console.log(responseObj.ListBucketResult.Contents);
 					ListOfFiles.set(responseObj.ListBucketResult.Contents);
 				});
 			})
@@ -38,13 +33,62 @@ Template.CloudStorageManager.onCreated(function() {
 			})
 		}
 	})
+
+	// Subscribe to Config
+	this.subscribe('config');
 });
 
 Template.CloudStorageManager.helpers({
 	files() {
 		return ListOfFiles.get();
+	},
+
+	bucketName() {
+		const config = Config.findOne();
+		return (!!config ? config.bucketName : "");
 	}
 });
 
 Template.CloudStorageManager.events({
-})
+	"click #start-upload-file"(event) {
+		const fileElement = document.getElementById('upload-file');
+		if (fileElement.files && fileElement.files[0]) {
+			console.log('changed upload-file');
+			console.log(fileElement.files[0]);
+			const args = {
+				name: fileElement.files[0].name,
+				fileType: fileElement.files[0].type,
+			};
+			Meteor.call("GCS.requestWriteURL", args, (error, writeUrl) => {
+				if (error) {
+					console.log(error);
+				} else {
+					fetch(writeUrl, 
+						{method: "PUT", 
+						contentType: fileElement.files[0].type,
+						body: fileElement.files[0]})
+					.then((response) => {
+						console.log(`Upload of ${fileElement.files[0].name} successful`);
+						updateFileList();
+					})
+					.catch((error) => {
+						console.log(`Upload of ${fileElement.files[0].name} failed`);
+						console.log(error);
+					})
+
+				}
+			})
+		}
+
+	}
+});
+
+// This function sets a reactive variable and the autorun takes care of the rest.
+export function updateFileList() {
+	const result = Meteor.call('GCS.requestListURL', (error, result) => {
+		if (error) {
+			console.log(error);
+		}
+		SignedListUrl.set(result[0]);
+	});
+}

@@ -11,6 +11,7 @@
     "@babel/runtime": "^7.23.5",
     "@google-cloud/iam-credentials": "^3.0.1",
     "@google-cloud/storage": "^7.7.0",
+    "axios": "^1.6.7",
     "bootstrap": "^4.5.3",
     "fs": "0.0.1-security",
     "jquery": "^3.7.1",

@@ -4,46 +4,40 @@ import FS from 'fs';
 
 import { Config } from "/imports/models/config";
 
-const {IAMCredentialsClient} = require('@google-cloud/iam-credentials');
+const { IAMCredentialsClient } = require('@google-cloud/iam-credentials');
 const { Storage } = require('@google-cloud/storage');
 
 const Scopes = ["https://www.googleapis.com/auth/cloud-platform"];
-async function getAuthToken() {
-	const config = Config.findOne();
-	process.env.GOOGLE_APPLICATION_CREDENTIALS = config.pemPath;
-	const client_options = {
-			"credentials_file": config.pemPath,
-		}
-	const credentialsClient = new IAMCredentialsClient(credentials_file=config.pemPath);
-	const request = {
-		name: config.client_email,
-		scope: Scopes,
-	}
 
-	const response = await credentialsClient.generateAccessToken(request);
-	config.accessToken = response.accessToken;
-	config.expireTime = response.expireTime.seconds;
+var MyStorage;
+
+function myStorage() {
+	// storage object is a singleton
+	if (MyStorage == null) {
+		const config = Config.findOne();
+		process.env.GOOGLE_APPLICATION_CREDENTIALS = config.pemPath;
+		MyStorage = new Storage({
+			projectId: config.projectId,
+			keyFileName: config.pemPath,
+		})
+	}
+	return MyStorage;
 }
 
-var myStorage;
-
-async function createStorageObject(config) {
-	process.env.GOOGLE_APPLICATION_CREDENTIALS = config.pemPath;
-	myStorage = new Storage({
-		projectId: config.projectId,
-		keyFileName: config.pemPath,
-	});
-
-};
-
 async function updateCORS(config) {
-	const result = await myStorage.bucket(config.bucketName).setCorsConfiguration([
+	const result = await myStorage().bucket(config.bucketName).setCorsConfiguration([
 	{
-		maxAgeSeconds: 3600,  // Is this right?  I have no idea.  Docs mention "preflighted requests"
-		method: ["GET"],
+		maxAgeSeconds: 3600,
+		method: ["GET", "PUT", "POST", "DELETE", "HEAD", "OPTIONS"],
 		origin: ["*"],
-		responseHeader: ["Access-Control-Allow-Origin *"],
-	}]);	
+		responseHeader: [
+			"Content-Type",
+			"Access-Control-Allow-Origin",
+			"Access-Control-Allow-Header",
+			"x-goog-resumable",
+			],
+	},
+	]);	
 };
 
 const GCSStoragePreamble = "https://storage.googleapis.com/";
@@ -67,8 +61,8 @@ Meteor.methods({
 	"GCS.submitBucketName"(bucketName) {
 		const config = Config.findOne();
 		Config.update(config._id, {$set: {bucketName: bucketName, phase: "Complete"}});
-		createStorageObject(Config.findOne());
-		//getAuthToken();
+		config.bucketName = bucketName;
+		Promise.await(updateCORS(config));
 	},
 
 	"GCS.requestListURL"() {
@@ -78,8 +72,55 @@ Meteor.methods({
 				action: "list",
 				expires: Date.now() + 15*60*1000, // 15 minutes
 		}
-		Promise.await(updateCORS(config));
-		const response = Promise.await(myStorage.bucket(config.bucketName).getSignedUrl(options));
+		const response = Promise.await(myStorage().bucket(config.bucketName).getSignedUrl(options));
 		return response;
 	},
+
+
+	"GCS.requestWriteURL"(args) {
+		const config = Config.findOne();
+		const uploadOptions = {
+			destination: args.name,
+		};
+		const signingOptions = {
+			version: "v4",
+			action: "write",
+			expires: Date.now() + 15*60*1000,
+			contentType: args.fileType,
+		};
+
+		const response = Promise.await(myStorage().bucket(config.bucketName).file(args.name, uploadOptions).getSignedUrl(signingOptions));
+		return response;
+	},
+
+	"GCS.requestDeleteURL"(key) {
+		const config = Config.findOne();
+		const options = {
+			version: "v4",
+			action: "delete",
+			expires: Date.now() + 15*60*1000 // 15 minutes
+		}
+
+		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).getSignedUrl(options))
+		return response;
+	},
+
+	"GCS.deleteFile"(key) {
+		const config = Config.findOne();
+		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).delete());
+	},
+
+	"GCS.setTags"(key, tags) {
+		const config = Config.findOne();
+		// tags should be a string that is a comma-separated list of alphanumeric strings.
+		const options = {
+			version: "v4",
+			action: "write",
+			expires: Date.now() + 15*60*1000,
+			extensionHeaders: {"x-goog-meta-tags": tags}
+		}
+		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).getSignedUrl(options));
+		console.log(response);
+		return response;
+	}
 })

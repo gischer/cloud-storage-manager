@@ -6,14 +6,21 @@ export const Config = new Mongo.Collection('config');
 export const Phases = ["Start", "ObtainGCSServiceAccountKeyInJson", "IdentifyGCSBucket", "Complete"];
 
 export const ConfigSchema = new SimpleSchema({
-	phase: {type: String, allowedValues: Phases}
+	phase: {type: String, allowedValues: Phases},
+	bucketName: {type: String, optional: true},
 });
 
+var ResetConfig = false;
+
 export function initializeConfig() {
-	Config.remove({});
-	Config.insert({phase: "Start"});
-	console.log('config initialized');
-	console.log(Config.findOne());
+	const config = Config.findOne();
+	console.log(`initializeConfig`);
+	console.log(config);
+	if (config == null || ResetConfig ) {
+		Config.remove({});
+		Config.insert({phase: "Start"});
+		console.log('config reset');
+	}
 }
 
 Meteor.methods({
