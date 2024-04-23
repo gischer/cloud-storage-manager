@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
 import { initializeConfig } from '/imports/models/config';
-import { getAuthToken } from '/imports/lib/GCSIamCredentials';
 
 
 import "/imports/models/config";

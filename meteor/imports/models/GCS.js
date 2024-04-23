@@ -3,6 +3,7 @@ import { Promise } from 'meteor/promise';
 import FS from 'fs';
 
 import { Config } from "/imports/models/config";
+import { createMetadataRequest } from '/imports/lib/GCSMethods'
 
 const { IAMCredentialsClient } = require('@google-cloud/iam-credentials');
 const { Storage } = require('@google-cloud/storage');
@@ -28,19 +29,22 @@ async function updateCORS(config) {
 	const result = await myStorage().bucket(config.bucketName).setCorsConfiguration([
 	{
 		maxAgeSeconds: 3600,
-		method: ["GET", "PUT", "POST", "DELETE", "HEAD", "OPTIONS"],
+		method: ["GET", "PUT", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"],
 		origin: ["*"],
+		headers: ["*"],
 		responseHeader: [
 			"Content-Type",
 			"Access-Control-Allow-Origin",
 			"Access-Control-Allow-Header",
 			"x-goog-resumable",
+			"*",
 			],
 	},
 	]);	
 };
 
 const GCSStoragePreamble = "https://storage.googleapis.com/";
+const GENERATION_PRECONDITION = 0;
 
 Meteor.methods({
 	"GCS.submitPem"(pemContents) {
@@ -55,7 +59,7 @@ Meteor.methods({
 		const config = Config.findOne();
 		// Now get the name of the account from the pemContents
 		const credentials = JSON.parse(pemContents);
-		Config.update(config._id, {$set: {pemPath: "/var/www/xyzzy.pem", phase: "IdentifyGCSBucket", client_email: credentials.client_email, projectId: credentials.project_id}});
+		Config.update(config._id, {$set: {pemPath: "/var/www/xyzzy.pem", phase: "IdentifyGCSBucket", client_email: credentials.client_email, projectId: credentials.project_id, privateKey: credentials.privateKey }});
 	},
 
 	"GCS.submitBucketName"(bucketName) {
@@ -77,7 +81,7 @@ Meteor.methods({
 	},
 
 
-	"GCS.requestWriteURL"(args) {
+	"GCS.requestWriteURL"(key, value) {
 		const config = Config.findOne();
 		const uploadOptions = {
 			destination: args.name,
@@ -110,17 +114,21 @@ Meteor.methods({
 		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).delete());
 	},
 
-	"GCS.setTags"(key, tags) {
+	"GCS.setTags"(key, tag) {
 		const config = Config.findOne();
-		// tags should be a string that is a comma-separated list of alphanumeric strings.
-		const options = {
-			version: "v4",
-			action: "write",
-			expires: Date.now() + 15*60*1000,
-			extensionHeaders: {"x-goog-meta-tags": tags}
-		}
-		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).getSignedUrl(options));
-		console.log(response);
+		const response = createMetadataRequest(key, tag);
 		return response;
-	}
+	},
+
+	"GCS.rename"(key, newName) {
+		const config = Config.findOne();
+		const options = {
+			preconditionOpts: {
+				ifGenerationMatch: GENERATION_PRECONDITION,
+			}
+		};
+
+		const response = Promise.await(myStorage().bucket(config.bucketName).file(key).move(newName, options));
+		return response;
+	},
 })

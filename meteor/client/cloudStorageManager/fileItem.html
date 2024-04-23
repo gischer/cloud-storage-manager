@@ -1,7 +1,20 @@
 <template name="FileItem">
 	<tr>
 		<td>{{file.Key}}</td>
-		<td>{{file.metadata.tags}}</td>
-		<td><button class='btn btn-danger btn-delete-file'>Delete</button></td>
+		<td>
+		{{#if isHidden}}
+		  {{file.metadata.tags}}
+		{{else}}
+		  <input type='text' class='form-control new-tag-input'>
+		{{/if}}
+		</td>
+		{{#if isHidden}}
+		<td><button class='btn btn-primary btn-add-tag mr-2'>Add Tag</button>
+			<button class='btn btn-danger btn-delete-file'>Delete</button>
+		</td>
+		{{else}}
+		<td><button class='btn btn-success btn-commit-tag'>Commit Tag</button>
+		<button class='btn btn-secondary btn-cancel-tag'>Cancel Tag</button></td>
+		{{/if}}
 	</tr>
 </template>

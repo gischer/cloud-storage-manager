@@ -14,8 +14,7 @@ var ResetConfig = false;
 
 export function initializeConfig() {
 	const config = Config.findOne();
-	console.log(`initializeConfig`);
-	console.log(config);
+
 	if (config == null || ResetConfig ) {
 		Config.remove({});
 		Config.insert({phase: "Start"});
