@@ -81,7 +81,7 @@ Meteor.methods({
 	},
 
 
-	"GCS.requestWriteURL"(key, value) {
+	"GCS.requestWriteURL"(args) {
 		const config = Config.findOne();
 		const uploadOptions = {
 			destination: args.name,
