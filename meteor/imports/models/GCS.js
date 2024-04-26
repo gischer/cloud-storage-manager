@@ -66,7 +66,7 @@ Meteor.methods({
 		const config = Config.findOne();
 		Config.update(config._id, {$set: {bucketName: bucketName, phase: "Complete"}});
 		config.bucketName = bucketName;
-		Promise.await(updateCORS(config));
+		//Promise.await(updateCORS(config));
 	},
 
 	"GCS.requestListURL"() {
