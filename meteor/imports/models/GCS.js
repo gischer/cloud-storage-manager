@@ -3,6 +3,7 @@ import { Promise } from 'meteor/promise';
 import FS from 'fs';
 
 import { Config } from "/imports/models/config";
+import { configureRoute } from '/imports/lib/configureRoutes';
 import { createMetadataRequest } from '/imports/lib/GCSMethods'
 
 const { IAMCredentialsClient } = require('@google-cloud/iam-credentials');
@@ -66,7 +67,8 @@ Meteor.methods({
 		const config = Config.findOne();
 		Config.update(config._id, {$set: {bucketName: bucketName, phase: "Complete"}});
 		config.bucketName = bucketName;
-		//Promise.await(updateCORS(config));
+		configureRoute(config);
+		Promise.await(updateCORS(config));
 	},
 
 	"GCS.requestListURL"() {

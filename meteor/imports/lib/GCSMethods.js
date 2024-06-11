@@ -5,6 +5,7 @@ import FS from 'fs';
 import R from 'ramda';
 
 import { Config } from '/imports/models/config';
+import { AppConfig } from '/imports/startup/config';
 
 function getPrivateKey(config) {
 	if (!config.privateKey) {	
@@ -15,6 +16,7 @@ function getPrivateKey(config) {
 	}
 	return config.privateKey;
 };
+
 
 export function createMetadataRequest(key, tag) {
 	// The 'key' as argument is GCS terminology for the filename of the file in a bucket.
