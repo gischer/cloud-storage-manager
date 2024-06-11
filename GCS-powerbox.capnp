@@ -1,6 +1,6 @@
 # GCS-powerbox.capnp
 
-#### INCORRECT >>> @0x9759ad011d40ab4c;  # generated using `capnp id`
+@0xa4df770837beee19;
 
 using Powerbox = import "/sandstorm/powerbox.capnp";
 using ApiSession = import "/sandstorm/api-session.capnp".ApiSession;
@@ -13,16 +13,16 @@ using ApiSession = import "/sandstorm/api-session.capnp".ApiSession;
 # that this is the appropriate tag value type to use when requesting an
 # `ApiSession`.
 
-const GCSTagValue :ApiSession.PowerboxTag = (
+const gcsTagValue :ApiSession.PowerboxTag = (
   canonicalUrl = "https://storage.googleapis.com/",
   # We're requesting an API compatible with Google CloudServices. This request will cover all versions,
   # which is overkill, but overkill is the best kind of kill.
 );
 
-const myDescriptor :Powerbox.PowerboxDescriptor = (
+const gcsCloudStorageDescriptor :Powerbox.PowerboxDescriptor = (
   # Our descriptor has one tag, whose ID is `ApiSession`'s type ID, and
   # whose value is the tag value defined above.
   tags = [
-    (id = 0xc879e379c625cdc7, value = .GCSTagValue)
+    (id = 0xc879e379c625cdc7, value = .gcsTagValue)
   ],
 );
