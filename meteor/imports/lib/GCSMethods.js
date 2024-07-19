@@ -20,7 +20,7 @@ export function createMetadataRequest(key, tag) {
 	// The 'key' as argument is GCS terminology for the filename of the file in a bucket.
 	const config = Config.findOne();
 	const bucketName = config.bucketName;
-	const object_uri = `${bucketName}/${key}`
+	const object_uri = `storage/v1/b/${bucketName}/o/${key}`
 	const privateKey = getPrivateKey(config);
 	const request_timestamp  = new Date().toISOString().replace(/-/g, '').replace(/:/g, '').substring(0, 15) + 'Z';
 	const datestamp = request_timestamp.substring(0, 8);

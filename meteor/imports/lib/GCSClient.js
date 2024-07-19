@@ -32,8 +32,8 @@ function sendGCSRequest(params) {
 	}
 
 	if (params.method == 'PATCH') {
-		options.method = 'POST'
-		options.headers = {"X-HTTP-Method-Override": "PATCH"}
+		//options.method = 'POST'
+		//options.headers = {"X-HTTP-Method-Override": "PATCH"}
 	}
 
 	fetch(url, options)
