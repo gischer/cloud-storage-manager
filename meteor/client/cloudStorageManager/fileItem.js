@@ -5,6 +5,8 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { updateFileList } from './cloudStorageManager';
 import { FSM } from '/imports/lib/fsm';
 import { sendGCSRequest } from '/imports/lib/GCSClient';
+import { Config } from '/imports/models/config';
+import { AppConfig } from '/imports/startup/config';
 
 import './fileItem.html';
 
@@ -18,11 +20,17 @@ Template.FileItem.onCreated(function() {
 		], // transitions
 		'hidden', // start state
 	);
+	const config = Config.findOne();
+	this.bucketName = config.bucketName;
 });
 
 Template.FileItem.helpers({
 	file() {
 		return Template.currentData().file;
+	},
+
+	url() {
+		return urlForKey(Template.currentData().file.Key, Template.instance().bucketName);
 	},
 
 	isActive() {
@@ -72,3 +80,9 @@ Template.FileItem.events({
 		Template.instance().fsm.cancel();
 	},
 });
+
+function urlForKey(key, bucketName) {
+	console.log(key);
+	console.log(bucketName);
+	return `/${bucketName}/${key}`;
+};

@@ -1,1 +1,1 @@
-// /imports/startup/client.js
+import '/client/main';

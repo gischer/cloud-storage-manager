@@ -4,10 +4,11 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import X2JS from 'x2js';
 
 import { Config } from '/imports/models/config';
-
+import { initiatePowerboxDialog } from '/imports/lib/powerbox';
 import "./cloudStorageManager.html";
 import "./fileItem";
 
+const PowerboxDescriptor = "EA1QAQEAABEBF1EEAQH/x80lxnnjecgAQAMxCQIBAAH/aHR0cHM6Ly8Dc3RvcmFnZS5nb29nbGVhcGlzLmNvbS8A";
 const SignedListUrl = ReactiveVar(false);
 const ListOfFiles = ReactiveVar(false);
 const x2js = new X2JS();
@@ -15,7 +16,7 @@ const x2js = new X2JS();
 Template.CloudStorageManager.onCreated(function() {
 	// Fire off the request for a signed URL that will list the bucket
 	updateFileList();
-
+	initiatePowerboxDialog(PowerboxDescriptor);
 	// Watch for the production of a signed URL that will list the bucket, and fetch it once it shows up.
 	this.autorun(function() {
 		const signedListUrl = SignedListUrl.get();
