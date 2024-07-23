@@ -2,7 +2,7 @@ const express = require("express");
 const FS = require('fs');
 const busboy = require('connect-busboy');
 const mustacheExpress = require('mustache-express');
-const { exec } = require('child-process');
+const { exec } = require('child_process');
 const utils = require('utils');
 
 const Config = require("./config.js");
