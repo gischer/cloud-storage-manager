@@ -62,7 +62,7 @@ app.post("/static", (req, res) => {
 });	
   
 // Server setup 
-app.listen(3000, () => { 
+app.listen(Config.port, () => { 
     console.log("Server is Running") 
 }) 
 
