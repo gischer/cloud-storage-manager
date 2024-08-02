@@ -20,7 +20,10 @@ app.set('views', __dirname + '/views');
 
 // Handling GET / request 
 app.use("/index.json", (req, res, next) => {
-    res.send("{[]}");
+	const index = getMasterIndex();
+	console.log(index);
+	const data = {files: index};
+    res.send(JSON.stringify(data));
 }) 
   
 app.get("/static/index.html", (req, res) => {
@@ -93,4 +96,20 @@ function processPostRequest(subdir, req, res) {
             res.redirect('back');
         });
     });
+}
+
+function getMasterIndex() {
+	const subdirs = ['backgrounds', 'primaries', 'tiles', 'static'];
+	const index = {}
+	var list;
+	subdirs.forEach(function(subdir) {
+		list = [];
+		list = FS.readdirSync(Config.fileroot + subdir);
+		index[subdir] = [];
+		list.forEach(function(name) {
+			index[subdir].push(`/${subdir}/${name}`);
+		})
+	});
+
+	return index;
 }
