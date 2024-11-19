@@ -42,6 +42,22 @@ app.get("/tiles/index.html", (req, res) => {
 	processIndexGetRequest('tiles', req, res);
 });
 
+app.get("/static/index.json", (req, res) => {
+	processIndexJSONRequest('static', req, res);
+});
+
+app.get("/backgrounds/index.json", (req, res) => {
+	processIndexJSONRequest('backgrounds', req, res);
+});
+
+app.get("/primaries/index.json", (req, res) => {
+	processIndexJSONRequest("primaries", req, res);
+});
+
+app.get("/tiles/index.json", (req, res) => {
+	processIndexJSONRequest("tiles", req, res);
+});
+
 // Handling GET /hello request 
 app.get("/backgrounds/:filename", (req, res, next) => {
 	processGetRequest('backgrounds', req, res);
@@ -76,7 +92,17 @@ function processIndexGetRequest(subdir, req, res) {
 		data.files.push({link: `/${subdir}/${filename}`, name: filename})
 	});
 	res.render("index", data);
-}
+};
+
+function processIndexJSONRequest(subdir, req, res) {
+	const list = FS.readdirSync(Config.fileroot + subdir);
+	const data = {subdir: subdir, files: []}
+	list.forEach(function(filename) {
+		data.files.push(filename);
+	});
+	res.setHeader('Content-type', 'application/json');
+	res.send(JSON.stringify(data));
+};
 
 function processGetRequest(subdir, req, res) {
 	const path = Config.fileroot + subdir + "/";
